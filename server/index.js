@@ -7,7 +7,13 @@ const session = require("express-session");
 require("dotenv").config();
 
 const app = express();
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Specify the exact origin
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
 app.use(express.json());
 app.use(
   session({
