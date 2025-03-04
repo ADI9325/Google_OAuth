@@ -17,28 +17,26 @@ import {
 import GoogleIcon from "@mui/icons-material/Google";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp"; // Icon for logout
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [letter, setLetter] = useState("");
   const [darkMode, setDarkMode] = useState(true);
-  const [openSuccess, setOpenSuccess] = useState(false); // For successful save
-  const [openError, setOpenError] = useState(false); // For save errors
-  const [openWarning, setOpenWarning] = useState(false); // For empty letter warning
-  const [loading, setLoading] = useState(false); // For loader state
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+  const [openWarning, setOpenWarning] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const theme = createTheme({
     palette: {
       mode: darkMode ? "dark" : "light",
-      primary: {
-        main: "#1976d2", // Google blue
-      },
-      secondary: {
-        main: "#f50057", // Google red
-      },
+      primary: { main: "#1976d2" },
+      secondary: { main: "#f50057" },
       background: {
         default: darkMode ? "#121212" : "#ffffff",
         paper: darkMode ? "#1e1e1e" : "#f5f5f5",
@@ -51,7 +49,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/user", { withCredentials: true })
+      .get(`${BASE_URL}/api/user`, { withCredentials: true })
       .then((res) => setUser(res.data))
       .catch((err) => {
         console.error("Error fetching user:", err);
@@ -64,22 +62,22 @@ const Dashboard = () => {
       setOpenWarning(true);
       return;
     }
-    setLoading(true); // Show loader before API call
+    setLoading(true);
     axios
       .post(
-        "http://localhost:5000/api/save-letter",
+        `${BASE_URL}/api/save-letter`,
         { content: letter },
         { withCredentials: true }
       )
       .then((res) => {
         setOpenSuccess(true);
-        setLetter(""); // Clear the textarea after successful save
+        setLetter("");
       })
       .catch((err) => {
         console.error("Error saving letter:", err);
         setOpenError(true);
       })
-      .finally(() => setLoading(false)); // Hide loader after API call completes (success or error)
+      .finally(() => setLoading(false));
   };
 
   const handleDarkModeToggle = () => {
@@ -88,10 +86,10 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     axios
-      .post("http://localhost:5000/api/logout", {}, { withCredentials: true })
+      .post(`${BASE_URL}/api/logout`, {}, { withCredentials: true })
       .then(() => {
-        setUser(null); // Clear user state
-        window.location.href = "/"; // Redirect to login page
+        setUser(null);
+        window.location.href = "/";
       })
       .catch((err) => {
         console.error("Error logging out:", err);
@@ -120,7 +118,7 @@ const Dashboard = () => {
             onClick={handleLogout}
             color="inherit"
             aria-label="logout"
-            sx={{ mr: 2 }} // Add some margin to separate from dark mode icon
+            sx={{ mr: 2 }}
           >
             <ExitToAppIcon />
           </IconButton>
@@ -165,10 +163,8 @@ const Dashboard = () => {
                 sx={{
                   padding: "12px 24px",
                   fontSize: "16px",
-                  backgroundColor: "#db4437", // Google red
-                  "&:hover": {
-                    backgroundColor: "#c23321", // Darker red on hover
-                  },
+                  backgroundColor: "#db4437",
+                  "&:hover": { backgroundColor: "#c23321" },
                   borderRadius: "8px",
                   boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
                   ...(loading && {
@@ -195,7 +191,6 @@ const Dashboard = () => {
         </Grid>
       </Container>
 
-      {/* Success Alert */}
       <Snackbar
         open={openSuccess}
         autoHideDuration={6000}
@@ -206,7 +201,7 @@ const Dashboard = () => {
           onClose={handleCloseAlert}
           severity="success"
           sx={{
-            backgroundColor: "#4caf50", // Green for success
+            backgroundColor: "#4caf50",
             color: "#ffffff",
             borderRadius: "8px",
             boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -217,7 +212,6 @@ const Dashboard = () => {
         </Alert>
       </Snackbar>
 
-      {/* Error Alert */}
       <Snackbar
         open={openError}
         autoHideDuration={6000}
@@ -228,7 +222,7 @@ const Dashboard = () => {
           onClose={handleCloseAlert}
           severity="error"
           sx={{
-            backgroundColor: "#f44336", // Red for error
+            backgroundColor: "#f44336",
             color: "#ffffff",
             borderRadius: "8px",
             boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -239,7 +233,6 @@ const Dashboard = () => {
         </Alert>
       </Snackbar>
 
-      {/* Warning Alert */}
       <Snackbar
         open={openWarning}
         autoHideDuration={6000}
@@ -250,7 +243,7 @@ const Dashboard = () => {
           onClose={handleCloseAlert}
           severity="warning"
           sx={{
-            backgroundColor: "#ff9800", // Orange for warning
+            backgroundColor: "#ff9800",
             color: "#ffffff",
             borderRadius: "8px",
             boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",

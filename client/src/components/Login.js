@@ -2,9 +2,11 @@ import React from "react";
 import { Button, Container, Typography, Box } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const Login = () => {
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/auth/google";
+    window.location.href = `${BASE_URL}/auth/google`;
   };
 
   return (
@@ -34,10 +36,8 @@ const Login = () => {
         sx={{
           padding: "12px 24px",
           fontSize: "16px",
-          backgroundColor: "#db4437", // Google red
-          "&:hover": {
-            backgroundColor: "#c23321", // Darker red on hover
-          },
+          backgroundColor: "#db4437",
+          "&:hover": { backgroundColor: "#c23321" },
           borderRadius: "8px",
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
         }}
