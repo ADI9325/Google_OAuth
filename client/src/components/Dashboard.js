@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import {
   Container,
   Typography,
-  TextField,
   Button,
   Box,
   Grid,
@@ -18,6 +19,10 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import FormatBoldIcon from "@mui/icons-material/FormatBold"; // For bold
+import FormatItalicIcon from "@mui/icons-material/FormatItalic"; // For italic
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted"; // For bullet list
+import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered"; // For numbered list
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
@@ -25,12 +30,13 @@ const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-  const [letter, setLetter] = useState("");
+  const [letter, setLetter] = useState(""); // Stores HTML content
   const [darkMode, setDarkMode] = useState(true);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [openWarning, setOpenWarning] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const theme = createTheme({
     palette: {
@@ -46,6 +52,22 @@ const Dashboard = () => {
       fontFamily: '"Roboto", sans-serif',
     },
   });
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: letter,
+    onUpdate: ({ editor }) => {
+      setLetter(editor.getHTML()); // Store HTML content
+    },
+  });
+
+  // Toolbar functions
+  const setBold = () => editor.chain().focus().toggleBold().run();
+  const setItalic = () => editor.chain().focus().toggleItalic().run();
+  const setBulletList = () => editor.chain().focus().toggleBulletList().run();
+  const setOrderedList = () => editor.chain().focus().toggleOrderedList().run();
+  const setHeading = (level) =>
+    editor.chain().focus().toggleHeading({ level }).run();
 
   useEffect(() => {
     axios
@@ -66,16 +88,26 @@ const Dashboard = () => {
     axios
       .post(
         `${BASE_URL}/api/save-letter`,
-        { content: letter },
+        { content: letter }, // Send HTML content
         { withCredentials: true }
       )
       .then((res) => {
         setOpenSuccess(true);
         setLetter("");
+        editor.commands.clearContent(); // Clear the editor
       })
       .catch((err) => {
         console.error("Error saving letter:", err);
         setOpenError(true);
+        if (err.response?.data?.error.includes("folder")) {
+          setErrorMessage(
+            "Failed to organize in Google Drive folder. Please try again."
+          );
+        } else {
+          setErrorMessage(
+            "Failed to save letter. Please try again or contact support."
+          );
+        }
       })
       .finally(() => setLoading(false));
   };
@@ -142,15 +174,85 @@ const Dashboard = () => {
         </Box>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={8}>
-            <TextField
-              fullWidth
-              multiline
-              rows={10}
-              value={letter}
-              onChange={(e) => setLetter(e.target.value)}
-              placeholder="Write your letter here..."
-              variant="outlined"
-              sx={{ backgroundColor: "background.paper", borderRadius: "4px" }}
+            {/* Rich Text Toolbar */}
+            <Box
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                padding: "8px",
+                borderRadius: "4px 4px 0 0",
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                mb: 1,
+              }}
+            >
+              <IconButton
+                onClick={setBold}
+                color={editor?.isActive("bold") ? "primary" : "inherit"}
+                aria-label="Bold"
+                sx={{ mr: 1 }}
+              >
+                <FormatBoldIcon />
+              </IconButton>
+              <IconButton
+                onClick={setItalic}
+                color={editor?.isActive("italic") ? "primary" : "inherit"}
+                aria-label="Italic"
+                sx={{ mr: 1 }}
+              >
+                <FormatItalicIcon />
+              </IconButton>
+              <IconButton
+                onClick={setBulletList}
+                color={editor?.isActive("bulletList") ? "primary" : "inherit"}
+                aria-label="Bullet List"
+                sx={{ mr: 1 }}
+              >
+                <FormatListBulletedIcon />
+              </IconButton>
+              <IconButton
+                onClick={setOrderedList}
+                color={editor?.isActive("orderedList") ? "primary" : "inherit"}
+                aria-label="Numbered List"
+                sx={{ mr: 1 }}
+              >
+                <FormatListNumberedIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => setHeading(1)}
+                color={
+                  editor?.isActive("heading", { level: 1 })
+                    ? "primary"
+                    : "inherit"
+                }
+                aria-label="Heading 1"
+                sx={{ mr: 1 }}
+              >
+                H1
+              </IconButton>
+              <IconButton
+                onClick={() => setHeading(2)}
+                color={
+                  editor?.isActive("heading", { level: 2 })
+                    ? "primary"
+                    : "inherit"
+                }
+                aria-label="Heading 2"
+                sx={{ mr: 1 }}
+              >
+                H2
+              </IconButton>
+            </Box>
+            {/* Editor Content */}
+            <EditorContent
+              editor={editor}
+              style={{
+                height: "300px",
+                marginBottom: "16px",
+                backgroundColor: theme.palette.background.paper,
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: "0 0 4px 4px",
+                padding: "8px",
+                overflow: "auto",
+              }}
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -181,7 +283,10 @@ const Dashboard = () => {
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => setLetter("")}
+                onClick={() => {
+                  setLetter("");
+                  editor.commands.clearContent();
+                }}
                 sx={{ borderColor: "secondary.main", color: "secondary.main" }}
               >
                 Clear Letter
@@ -208,7 +313,7 @@ const Dashboard = () => {
             "& .MuiAlert-icon": { color: "#ffffff" },
           }}
         >
-          Letter successfully saved to Google Drive!
+          Letter successfully saved to the "Letters" folder in Google Drive!
         </Alert>
       </Snackbar>
 
@@ -229,7 +334,7 @@ const Dashboard = () => {
             "& .MuiAlert-icon": { color: "#ffffff" },
           }}
         >
-          Failed to save letter. Please try again or contact support.
+          {errorMessage}
         </Alert>
       </Snackbar>
 
