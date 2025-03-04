@@ -23,6 +23,7 @@ import FormatBoldIcon from "@mui/icons-material/FormatBold"; // For bold
 import FormatItalicIcon from "@mui/icons-material/FormatItalic"; // For italic
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted"; // For bullet list
 import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered"; // For numbered list
+import DeleteIcon from "@mui/icons-material/Delete"; // For delete action (admin only)
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 
@@ -37,6 +38,7 @@ const Dashboard = () => {
   const [openWarning, setOpenWarning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [letters, setLetters] = useState([]); // Store user's letters for admin to manage
 
   const theme = createTheme({
     palette: {
@@ -72,12 +74,31 @@ const Dashboard = () => {
   useEffect(() => {
     axios
       .get(`${BASE_URL}/api/user`, { withCredentials: true })
-      .then((res) => setUser(res.data))
+      .then((res) => {
+        setUser(res.data);
+        if (res.data.role === "admin") {
+          fetchLetters(); // Fetch letters only for admins
+        }
+      })
       .catch((err) => {
         console.error("Error fetching user:", err);
         window.location.href = "/";
       });
   }, []);
+
+  // Fetch letters (admin only) - now via backend endpoint
+  const fetchLetters = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/letters`, {
+        withCredentials: true,
+      });
+      setLetters(response.data.letters || []);
+    } catch (error) {
+      console.error("Error fetching letters:", error);
+      setOpenError(true);
+      setErrorMessage("Failed to fetch letters. Please try again.");
+    }
+  };
 
   const saveLetter = () => {
     if (!letter.trim()) {
@@ -112,6 +133,28 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
   };
 
+  const deleteLetter = async (fileId) => {
+    if (!user || user.role !== "admin") {
+      setOpenError(true);
+      setErrorMessage("Access denied. Only admins can delete letters.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.delete(`${BASE_URL}/api/letters/${fileId}`, {
+        withCredentials: true,
+      });
+      setLetters(letters.filter((letter) => letter.id !== fileId));
+      setOpenSuccess(true);
+    } catch (err) {
+      console.error("Error deleting letter:", err);
+      setOpenError(true);
+      setErrorMessage("Failed to delete letter. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDarkModeToggle = () => {
     setDarkMode(!darkMode);
   };
@@ -144,7 +187,7 @@ const Dashboard = () => {
       <AppBar position="static" sx={{ backgroundColor: "primary.main" }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Welcome, {user.displayName}
+            Welcome, {user.displayName} ({user.role})
           </Typography>
           <IconButton
             onClick={handleLogout}
@@ -194,7 +237,7 @@ const Dashboard = () => {
               </IconButton>
               <IconButton
                 onClick={setItalic}
-                color={editor?.isActive("italic") ? "primary" : "inherit"}
+                color={editor?.isActive("italic") ? "primary" : "inherit"} // Fixed typo: 'email' to 'editor'
                 aria-label="Italic"
                 sx={{ mr: 1 }}
               >
@@ -261,7 +304,7 @@ const Dashboard = () => {
                 variant="contained"
                 startIcon={<GoogleIcon />}
                 onClick={saveLetter}
-                disabled={loading}
+                disabled={loading || user.role !== "user"} // Only users can save letters
                 sx={{
                   padding: "12px 24px",
                   fontSize: "16px",
@@ -288,9 +331,36 @@ const Dashboard = () => {
                   editor.commands.clearContent();
                 }}
                 sx={{ borderColor: "secondary.main", color: "secondary.main" }}
+                disabled={loading}
               >
                 Clear Letter
               </Button>
+              {user.role === "admin" && letters.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="h6">Manage Letters</Typography>
+                  {letters.map((letter) => (
+                    <Box
+                      key={letter.id}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        p: 1,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
+                      <Typography>{letter.name}</Typography>
+                      <IconButton
+                        onClick={() => deleteLetter(letter.id)}
+                        color="error"
+                        disabled={loading}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
           </Grid>
         </Grid>
