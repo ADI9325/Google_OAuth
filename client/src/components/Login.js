@@ -1,4 +1,6 @@
 import React from "react";
+import { Button, Container, Typography, Box } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
 
 const Login = () => {
   const handleGoogleLogin = () => {
@@ -6,10 +8,43 @@ const Login = () => {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Letter App</h1>
-      <button onClick={handleGoogleLogin}>Login with Google</button>
-    </div>
+    <Container
+      maxWidth="sm"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        backgroundColor: "background.default",
+      }}
+    >
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography variant="h3" gutterBottom>
+          WarrantyMe Letter App
+        </Typography>
+        <Typography variant="subtitle1" color="textSecondary">
+          Sign in to start writing and saving letters
+        </Typography>
+      </Box>
+      <Button
+        variant="contained"
+        startIcon={<GoogleIcon />}
+        onClick={handleGoogleLogin}
+        sx={{
+          padding: "12px 24px",
+          fontSize: "16px",
+          backgroundColor: "#db4437", // Google red
+          "&:hover": {
+            backgroundColor: "#c23321", // Darker red on hover
+          },
+          borderRadius: "8px",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+        }}
+      >
+        Login with Google
+      </Button>
+    </Container>
   );
 };
 

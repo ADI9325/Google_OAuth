@@ -8,12 +8,14 @@ require("dotenv").config();
 
 const app = express();
 
+// Configure CORS to allow only localhost:3000 and include credentials
 app.use(
   cors({
     origin: "http://localhost:3000", // Specify the exact origin
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
 );
+
 app.use(express.json());
 app.use(
   session({
@@ -86,6 +88,24 @@ app.post("/api/save-letter", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// New Logout Route
+app.post("/api/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({ message: "Failed to logout" });
+    }
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Session destroy error:", err);
+        return res.status(500).json({ message: "Failed to destroy session" });
+      }
+      res.clearCookie("connect.sid"); // Clear the session cookie
+      res.json({ message: "Logged out successfully" });
+    });
+  });
 });
 
 app.listen(5000, () => console.log("Server running on port 5000"));
