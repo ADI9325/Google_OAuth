@@ -1,70 +1,124 @@
-# Getting Started with Create React App
+WarrantyMe Letter App - Client
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the client-side of the WarrantyMe Letter App, built with React.js. It provides an intuitive UI for users to authenticate via Google, create and manage letters, and interact with the server API.
 
-## Available Scripts
+🚀 Features
 
-In the project directory, you can run:
+🌐 Google OAuth 2.0 Authentication (Login with Google)
 
-### `npm start`
+📝 Letter creation & saving to Google Drive
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+👤 Role-based access control (RBAC)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+⚡ API integration with Express backend
 
-### `npm test`
+🎨 Responsive & user-friendly UI using Styled Components
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+🛠 Prerequisites
 
-### `npm run build`
+Before running this project, ensure you have:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+✅ Node.js v18.18+ installed
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+✅ npm (Node Package Manager) installed
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+✅ The backend server running at http://localhost:5000
 
-### `npm run eject`
+📥 Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1️⃣ Clone the repository
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+cd client
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2️⃣ Install dependencies
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+npm install
 
-## Learn More
+3️⃣ Create a .env file in the client directory
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+REACT_APP_SERVER_URL=http://localhost:5000
+REACT_APP_GOOGLE_CLIENT_ID=your-google-client-id
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Replace the placeholders with your Google OAuth client ID.
 
-### Code Splitting
+🚀 Running the Client
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+npm start
 
-### Analyzing the Bundle Size
+The React app runs on http://localhost:3000.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+📌 Folder Structure
 
-### Making a Progressive Web App
+client/
+├── src/
+│ ├── components/ # Reusable components
+│ ├── pages/ # Application pages (Home, Dashboard, etc.)
+│ ├── services/ # API calls using Axios
+│ ├── context/ # User authentication & state management
+│ ├── App.js # Main component
+│ ├── index.js # React DOM entry point
+├── .env # Environment variables
+├── package.json # Dependencies & scripts
+└── README.md # This file
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+🔌 API Integration
 
-### Advanced Configuration
+This client communicates with the server API at http://localhost:5000. The key API calls include:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Method
 
-### Deployment
+Endpoint
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Description
 
-### `npm run build` fails to minify
+GET
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+/auth/google
+
+Redirects to Google OAuth
+
+GET
+
+/api/user
+
+Fetches logged-in user details
+
+POST
+
+/api/save-letter
+
+Saves a letter to Google Drive
+
+GET
+
+/api/letters
+
+Fetches all saved letters (Admin only)
+
+DELETE
+
+/api/letters/:fileId
+
+Deletes a letter (Admin only)
+
+POST
+
+/api/logout
+
+Logs out the user
+
+🤝 Contributing
+
+Fork the repository.
+
+Create a new branch (feature-branch-name).
+
+Commit your changes.
+
+Submit a Pull Request (PR).
+
+📜 License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+🚀 Happy Coding! 😊
