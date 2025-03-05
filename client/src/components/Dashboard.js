@@ -19,13 +19,14 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import FormatBoldIcon from "@mui/icons-material/FormatBold"; // For bold
-import FormatItalicIcon from "@mui/icons-material/FormatItalic"; // For italic
-import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted"; // For bullet list
-import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered"; // For numbered list
-import DeleteIcon from "@mui/icons-material/Delete"; // For delete action (admin only)
+import FormatBoldIcon from "@mui/icons-material/FormatBold";
+import FormatItalicIcon from "@mui/icons-material/FormatItalic";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -39,6 +40,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [letters, setLetters] = useState([]); // Store user's letters for admin to manage
+  const navigate = useNavigate();
 
   const theme = createTheme({
     palette: {
@@ -72,19 +74,22 @@ const Dashboard = () => {
     editor.chain().focus().toggleHeading({ level }).run();
 
   useEffect(() => {
-    axios
-      .get(`${BASE_URL}/api/user`, { withCredentials: true })
-      .then((res) => {
-        setUser(res.data);
-        if (res.data.role === "admin") {
-          fetchLetters(); // Fetch letters only for admins
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/api/user`, {
+          withCredentials: true,
+        });
+        setUser(response.data);
+        if (response.data.role === "admin") {
+          fetchLetters();
         }
-      })
-      .catch((err) => {
-        console.error("Error fetching user:", err);
-        window.location.href = "/";
-      });
-  }, []);
+      } catch (err) {
+        console.error("Error fetching user or not authenticated:", err);
+        navigate("/");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   // Fetch letters (admin only) - now via backend endpoint
   const fetchLetters = async () => {
@@ -109,7 +114,7 @@ const Dashboard = () => {
     axios
       .post(
         `${BASE_URL}/api/save-letter`,
-        { content: letter }, // Send HTML content
+        { content: letter },
         { withCredentials: true }
       )
       .then((res) => {
@@ -164,7 +169,7 @@ const Dashboard = () => {
       .post(`${BASE_URL}/api/logout`, {}, { withCredentials: true })
       .then(() => {
         setUser(null);
-        window.location.href = "/";
+        navigate("/");
       })
       .catch((err) => {
         console.error("Error logging out:", err);
@@ -237,7 +242,7 @@ const Dashboard = () => {
               </IconButton>
               <IconButton
                 onClick={setItalic}
-                color={editor?.isActive("italic") ? "primary" : "inherit"} // Fixed typo: 'email' to 'editor'
+                color={editor?.isActive("italic") ? "primary" : "inherit"}
                 aria-label="Italic"
                 sx={{ mr: 1 }}
               >

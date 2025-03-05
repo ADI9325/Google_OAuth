@@ -5,23 +5,19 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 
-const darkTheme = createTheme({
+const theme = createTheme({
   palette: {
-    mode: "dark",
-    primary: {
-      main: "#1976d2", // Google blue
-    },
-    secondary: {
-      main: "#f50057", // Google red
-    },
+    mode: "dark", // Default to dark mode; you can toggle this dynamically
+    primary: { main: "#1976d2" },
+    secondary: { main: "#f50057" },
     background: {
-      default: "#121212", // Dark background
-      paper: "#1e1e1e", // Slightly lighter for cards
+      default: "#121212",
+      paper: "#1e1e1e",
     },
   },
   typography: {
@@ -29,19 +25,20 @@ const darkTheme = createTheme({
   },
 });
 
-function App() {
+const App = () => {
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="/" element={<Login />} />
+          <Route path="*" element={<Navigate to="/" />} />{" "}
+          {/* Catch-all route for 404 */}
         </Routes>
       </Router>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

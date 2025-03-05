@@ -1,10 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Container, Typography, Box } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/api/user`, {
+          withCredentials: true,
+        });
+        if (response.data) {
+          navigate("/dashboard");
+        }
+      } catch (err) {
+        console.error("Not authenticated:", err);
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
   const handleGoogleLogin = () => {
     window.location.href = `${BASE_URL}/auth/google`;
   };
