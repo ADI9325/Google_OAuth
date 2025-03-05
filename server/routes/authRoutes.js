@@ -38,7 +38,7 @@ router.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect("https://googleoauth-zfac.onrender.com/dashboard");
+    res.redirect("https://google-oauth-frontend.onrender.com/dashboard");
   }
 );
 
