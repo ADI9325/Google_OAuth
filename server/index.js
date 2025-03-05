@@ -10,7 +10,7 @@ const app = express();
 // Configure CORS to allow only localhost:3000 and include credentials
 app.use(
   cors({
-    origin: "https://googleoauth-zfac.onrender.com",
+    origin: "https://google-oauth-frontend.onrender.com",
     credentials: true,
   })
 );
